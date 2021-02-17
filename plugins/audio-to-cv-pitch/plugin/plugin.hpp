@@ -13,6 +13,7 @@ public:
     enum Parameters
     {
         paramSensitivity = 0,
+        paramOctave,
         paramCount
     };
 
@@ -30,22 +31,22 @@ protected:
 
     const char* getDescription() const override
     {
-        return "Transient Mangler";
+        return "Audio to CV pitch";
     }
 
     const char* getMaker() const noexcept override
     {
-        return "CSD";
+        return "BGSN";
     }
 
     const char* getHomePage() const override
     {
-        return "http://";
+        return "http://bramgiesen.com";
     }
 
     const char* getLicense() const noexcept override
     {
-        return "Custom";
+        return "GPLv3.0";
     }
 
     uint32_t getVersion() const noexcept override
@@ -83,6 +84,7 @@ private:
     AubioPitch pitchDetector;
 
     float sensitivity;
+    int   octave;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioToCVPitch)
 };

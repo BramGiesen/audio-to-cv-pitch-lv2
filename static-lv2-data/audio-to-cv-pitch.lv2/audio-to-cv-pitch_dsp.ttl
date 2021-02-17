@@ -47,6 +47,16 @@
         lv2:default 1.000000 ;
         lv2:minimum 0.100000 ;
         lv2:maximum 3.000000 ;
+    ] ,
+    [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:name """Octave""" ;
+        lv2:symbol "Octave" ;
+        lv2:default 0 ;
+        lv2:minimum -3 ;
+        lv2:maximum 3 ;
+        lv2:portProperty lv2:integer ;
     ] ;
 
     rdfs:comment """
@@ -60,8 +70,8 @@ This plugin converts a monophonic audio signal to CV pitch.
     doap:license """GPLv3.0""" ;
 
     doap:maintainer [
-        foaf:name """CSD""" ;
-        foaf:homepage <http://> ;
+        foaf:name """BGSN""" ;
+        foaf:homepage <http://bramgiesen.com> ;
     ] ;
 
     lv2:microVersion 0 ;

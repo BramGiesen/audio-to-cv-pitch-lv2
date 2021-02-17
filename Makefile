@@ -21,7 +21,7 @@ plugins: libs
 
 ifneq ($(CROSS_COMPILING),true)
 gen: plugins dpf/utils/lv2_ttl_generator
-	@#$(CURDIR)/dpf/utils/generate-ttl.sh
+	#@$(CURDIR)/dpf/utils/generate-ttl.sh
 	cp -r static-lv2-data/audio-to-cv-pitch.lv2/* bin/audio-to-cv-pitch.lv2/
 ifeq ($(MACOS),true)
 	@$(CURDIR)/dpf/utils/generate-vst-bundles.sh

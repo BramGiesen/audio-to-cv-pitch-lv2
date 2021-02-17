@@ -17,6 +17,7 @@ AudioToCVPitch::AudioToCVPitch()
     pitchDetector.setPitchOutput("Hz");
 
     sensitivity = 1.0;
+    octave = 0;
 }
 
 AudioToCVPitch::~AudioToCVPitch()
@@ -38,6 +39,14 @@ void AudioToCVPitch::initParameter(uint32_t index, Parameter& parameter)
             parameter.ranges.min = 0.1f;
             parameter.ranges.max = 3.f;
             break;
+        case paramOctave:
+            parameter.hints = kParameterIsAutomable | kParameterIsInteger;
+            parameter.name = "Octave";
+            parameter.symbol = "Octave";
+            parameter.ranges.def = 0;
+            parameter.ranges.min = -3;
+            parameter.ranges.max = 3;
+            break;
     }
 }
 
@@ -50,6 +59,8 @@ float AudioToCVPitch::getParameterValue(uint32_t index) const
     {
         case paramSensitivity:
             return sensitivity;
+        case paramOctave:
+            return octave;
     }
 }
 
@@ -59,6 +70,9 @@ void AudioToCVPitch::setParameterValue(uint32_t index, float value)
     {
         case paramSensitivity:
             sensitivity = value;
+            break;
+        case paramOctave:
+            octave = static_cast<int>(value);
             break;
     }
 }
@@ -85,7 +99,7 @@ void AudioToCVPitch::run(const float** inputs, float** outputs, uint32_t numFram
     }
 
     float detectedPitchInHz = aubio->process((float*)input);
-    float linearPitch = (detectedPitchInHz > 0.0) ? 12*log2(detectedPitchInHz / 440.0) + 69.0 : 0.0;
+    float linearPitch = (detectedPitchInHz > 0.0) ? (12*log2(detectedPitchInHz / 440.0) + 69.0) + (12 * octave) : 0.0;
     float cvPitch = ((float)linearPitch * (1/12.0f));
 
     for (unsigned f = 0; f < numFrames; f++) {
