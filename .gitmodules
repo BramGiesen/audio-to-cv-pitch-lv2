@@ -1,0 +1,6 @@
+[submodule "aubio_module"]
+	path = aubio_module
+	url = git@github.com:BramGiesen/aubio_module.git
+[submodule "dpf"]
+	path = dpf
+	url = git@github.com:DISTRHO/DPF.git
