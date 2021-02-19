@@ -11,7 +11,6 @@ all: libs plugins gen
 # --------------------------------------------------------------
 
 libs:
-	$(MAKE) -C aubio
 	$(MAKE) -C aubio_module
 
 plugins: libs
