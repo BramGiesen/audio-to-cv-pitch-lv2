@@ -102,6 +102,10 @@ void AudioToCVPitch::run(const float** inputs, float** outputs, uint32_t numFram
     float linearPitch = (detectedPitchInHz > 0.0) ? (12*log2(detectedPitchInHz / 440.0) + 69.0) + (12 * octave) : 0.0;
     float cvPitch = ((float)linearPitch * (1/12.0f));
 
+    //clip pitch between output range of 0 to 10 volt
+    cvPitch = (cvPitch < 0.0) ? 0.0 : cvPitch;
+    cvPitch = (cvPitch > 10.0) ? 10.0 : cvPitch;
+
     for (unsigned f = 0; f < numFrames; f++) {
         outputs[0][f] = cvPitch;
     }
