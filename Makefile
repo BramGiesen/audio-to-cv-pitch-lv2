@@ -10,10 +10,8 @@ all: libs plugins gen
 
 # --------------------------------------------------------------
 
-submodules:
-	git submodule update --init --recursive
-
 libs:
+	$(MAKE) -C aubio
 	$(MAKE) -C aubio_module
 
 plugins: libs

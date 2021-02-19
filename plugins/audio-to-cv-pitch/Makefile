@@ -11,6 +11,7 @@
 NAME = audio-to-cv-pitch
 
 AUBIO_MODULE = ../../aubio_module
+AUBIO = ../../aubio
 
 # --------------------------------------------------------------
 # Files to build
@@ -31,14 +32,13 @@ BUILD_CXX_FLAGS += \
 				   -I./plugin \
 				   -I./dsp \
 				   -I$(AUBIO_MODULE)/src \
+				   -I$(AUBIO)/src \
 
 ifeq ($(WIN32),true)
 LINK_OPTS += -static -static-libgcc -static-libstdc++ aubio_module/aubio/aubio.a
 endif
 
-BASE_FLAGS += -I$(AUBIO_MODULE)/aubio/src
-LINK_FLAGS += $(AUBIO_MODULE)/aubio/build/src/libaubio.a
-
+LINK_FLAGS += $(AUBIO)/libaubio.a
 
 # --------------------------------------------------------------
 # Enable all possible plugin types
