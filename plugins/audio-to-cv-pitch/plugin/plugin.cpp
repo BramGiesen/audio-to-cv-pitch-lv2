@@ -9,8 +9,13 @@ AudioToCVPitch::AudioToCVPitch()
     : Plugin(paramCount, 0, 0)
 {
     aubio = &pitchDetector;
-    aubio->setBuffersize(getBufferSize());
-    aubio->setHopfactor(8);
+
+    int bufferSize = getBufferSize();
+    int aubioBufferSize = 2048;
+    int hopfactor = aubioBufferSize / bufferSize;
+
+    aubio->setHopfactor(hopfactor);
+    aubio->setBuffersize(aubioBufferSize);
     aubio->setSamplerate(getSampleRate());
     pitchDetector.setPitchMethod("yinfast");
     pitchDetector.setSilenceThreshold(-30.0f);
