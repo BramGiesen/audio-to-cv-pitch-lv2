@@ -13,8 +13,18 @@ public:
     enum Parameters
     {
         paramSensitivity = 0,
+        paramConfidenceThreshold,
         paramOctave,
+        paramHoldOutputPitch,
+        paramDetectedPitch,
+        paramPitchConfidence,
         paramCount
+    };
+
+    enum Outputs
+    {
+        outputPitch,
+        outputSignal
     };
 
     AudioToCVPitch();
@@ -31,7 +41,7 @@ protected:
 
     const char* getDescription() const override
     {
-        return "Audio to CV pitch";
+        return "This plugin converts a monophonic audio signal to CV pitch";
     }
 
     const char* getMaker() const noexcept override
@@ -62,6 +72,7 @@ protected:
     // -------------------------------------------------------------------
     // Init
 
+    void initAudioPort(bool input, uint32_t index, AudioPort& port) override;
     void initParameter(uint32_t index, Parameter& parameter) override;
 
     // -------------------------------------------------------------------
@@ -72,19 +83,29 @@ protected:
 
     // -------------------------------------------------------------------
     // Process
+
     void activate() override;
     void deactivate() override;
-    void midiNoteOn(uint8_t pitch, uint8_t velocity);
-    void midiNoteOff(uint8_t pitch);
     void run(const float** inputs, float** outputs, uint32_t frames) override;
+    void bufferSizeChanged(uint32_t newBufferSize) override;
+    void sampleRateChanged(double newSampleRate) override;
 
 private:
+    mutable AubioPitch pitchDetector;
+    AubioModule& aubio;
 
-    AubioModule *aubio;
-    AubioPitch pitchDetector;
+    float* inputBuffer;
+    uint32_t inputBufferPos;
+    uint32_t inputBufferSize;
+
+    float lastKnownPitchLinear;
+    float lastKnownPitchInHz;
+    float lastKnownPitchConfidence;
 
     float sensitivity;
+    float threshold;
     int   octave;
+    bool  holdOutputPitch;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioToCVPitch)
 };
