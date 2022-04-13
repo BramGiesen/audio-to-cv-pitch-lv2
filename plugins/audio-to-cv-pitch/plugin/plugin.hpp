@@ -2,10 +2,14 @@
 #define DISTRHO_PLUGIN_SLPLUGIN_HPP_INCLUDED
 
 #include "DistrhoPlugin.hpp"
-#include "aubio_pitch.hpp"
 
+extern "C" {
+#include <aubio.h>
+}
 
 START_NAMESPACE_DISTRHO
+
+// -----------------------------------------------------------------------
 
 class AudioToCVPitch : public Plugin
 {
@@ -14,6 +18,7 @@ public:
     {
         paramSensitivity = 0,
         paramConfidenceThreshold,
+        paramTolerance,
         paramOctave,
         paramHoldOutputPitch,
         paramDetectedPitch,
@@ -91,10 +96,10 @@ protected:
     void sampleRateChanged(double newSampleRate) override;
 
 private:
-    mutable AubioPitch pitchDetector;
-    AubioModule& aubio;
+    aubio_pitch_t* pitchDetector;
+    fvec_t* const detectedPitch;
 
-    float* inputBuffer;
+    fvec_t* inputBuffer;
     uint32_t inputBufferPos;
     uint32_t inputBufferSize;
 
@@ -106,6 +111,8 @@ private:
     float threshold;
     int   octave;
     bool  holdOutputPitch;
+
+    void recreateAubioPitchDetector(double sampleRate);
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioToCVPitch)
 };

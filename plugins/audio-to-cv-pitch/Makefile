@@ -8,7 +8,7 @@
 # --------------------------------------------------------------
 # Project name, used for binaries
 
-NAME = audio-to-cv-pitch
+NAME = audio-to-cv-pitch-falk-changes
 
 AUBIO_MODULE = ../../aubio_module
 AUBIO = ../../aubio
@@ -16,13 +16,9 @@ AUBIO = ../../aubio
 # --------------------------------------------------------------
 # Files to build
 
-FILES_DSP = \
-	plugin/plugin.cpp \
-	$(AUBIO_MODULE)/src/hopbuffer.cpp \
-	$(AUBIO_MODULE)/src/aubio_module.cpp \
-	$(AUBIO_MODULE)/src/aubio_pitch.cpp
+FILES_DSP = plugin/plugin.cpp
 
-EXTRA_LIBS = $(AUBIO)/libaubio.a
+EXTRA_LIBS = $(AUBIO)/libaubio.a $(shell pkg-config --libs fftw3f)
 
 # --------------------------------------------------------------
 # Do some magic
@@ -34,6 +30,8 @@ BUILD_CXX_FLAGS += \
 	-I./dsp \
 	-I$(AUBIO_MODULE)/src \
 	-I$(AUBIO)/src \
+
+# LINK_FLAGS += $(shell pkg-config --libs fftw3f)
 
 # --------------------------------------------------------------
 # Enable all possible plugin types
