@@ -271,7 +271,7 @@ fvec_shift (fvec_t * s)
   uint_t half = s->length / 2, start = half, j;
   // if length is odd, middle element is moved to the end
   if (2 * half < s->length) start ++;
-#ifndef HAVE_ATLAS
+#ifndef HAVE_BLAS
   for (j = 0; j < half; j++) {
     ELEM_SWAP (s->data[j], s->data[j + start]);
   }
@@ -291,7 +291,7 @@ fvec_ishift (fvec_t * s)
   uint_t half = s->length / 2, start = half, j;
   // if length is odd, middle element is moved to the beginning
   if (2 * half < s->length) start ++;
-#ifndef HAVE_ATLAS
+#ifndef HAVE_BLAS
   for (j = 0; j < half; j++) {
     ELEM_SWAP (s->data[j], s->data[j + start]);
   }
@@ -328,7 +328,7 @@ smpl_t
 aubio_level_lin (const fvec_t * f)
 {
   smpl_t energy = 0.;
-#ifndef HAVE_ATLAS
+#ifndef HAVE_BLAS
   uint_t j;
   for (j = 0; j < f->length; j++) {
     energy += SQR (f->data[j]);
@@ -384,6 +384,15 @@ fvec_add (fvec_t * o, smpl_t val)
   uint_t j;
   for (j = 0; j < o->length; j++) {
     o->data[j] += val;
+  }
+}
+
+void
+fvec_mul (fvec_t *o, smpl_t val)
+{
+  uint_t j;
+  for (j = 0; j < o->length; j++) {
+    o->data[j] *= val;
   }
 }
 
@@ -522,7 +531,7 @@ aubio_freqtomidi (smpl_t freq)
   if (freq < 2. || freq > 100000.) return 0.; // avoid nans and infs
   /* log(freq/A-2)/log(2) */
   midi = freq / 6.875;
-  midi = LOG (midi) / 0.69314718055995;
+  midi = LOG (midi) / 0.6931471805599453;
   midi *= 12;
   midi -= 3;
   return midi;
@@ -534,7 +543,7 @@ aubio_miditofreq (smpl_t midi)
   smpl_t freq;
   if (midi > 140.) return 0.; // avoid infs
   freq = (midi + 3.) / 12.;
-  freq = EXP (freq * 0.69314718055995);
+  freq = EXP (freq * 0.6931471805599453);
   freq *= 6.875;
   return freq;
 }

@@ -160,7 +160,7 @@ void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
   assert(s->height == output->length);
   assert(s->length == scale->length);
 #endif
-#if !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+#if !defined(HAVE_ACCELERATE) && !defined(HAVE_BLAS)
   uint_t j;
   fvec_zeros(output);
   for (j = 0; j < s->length; j++) {
@@ -169,7 +169,7 @@ void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
           * s->data[k][j];
     }
   }
-#elif defined(HAVE_ATLAS)
+#elif defined(HAVE_BLAS)
   for (k = 0; k < s->height; k++) {
     output->data[k] = aubio_cblas_dot( s->length, scale->data, 1, s->data[k], 1);
   }

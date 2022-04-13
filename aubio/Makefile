@@ -9,6 +9,8 @@ include ../dpf/Makefile.base.mk
 # --------------------------------------------------------------
 
 BUILD_C_FLAGS += -Isrc -DHAVE_CONFIG_H
+# BUILD_C_FLAGS += -DHAVE_FFTW3
+# BUILD_C_FLAGS += -DHAVE_COMPLEX_H
 
 OBJS = \
 	src/cvec.c.o \
