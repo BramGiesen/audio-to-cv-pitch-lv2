@@ -263,6 +263,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define ATAN       atanf
 #define ATAN2      atan2f
 #else
+#error using double
 #define EXP        exp
 #define COS        cos
 #define SIN        sin

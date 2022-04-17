@@ -53,8 +53,86 @@ struct _aubio_sink_t {
   del_aubio_sink_t s_del;
 };
 
+extern uint_t aubio_str_path_has_extension(const char_t *filename,
+    const char_t *pattern);
+
+#ifdef HAVE_VORBISENC
+typedef struct _aubio_sink_vorbis_t aubio_sink_vorbis_t;
+extern aubio_sink_vorbis_t * new_aubio_sink_vorbis(const char_t *uri,
+    uint_t samplerate);
+extern void del_aubio_sink_vorbis (aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_close(aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_preset_channels(aubio_sink_vorbis_t *s,
+    uint_t channels);
+extern uint_t aubio_sink_vorbis_preset_samplerate(aubio_sink_vorbis_t *s,
+    uint_t samplerate);
+extern uint_t aubio_sink_vorbis_get_channels(aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_get_samplerate(aubio_sink_vorbis_t *s);
+extern void aubio_sink_vorbis_do(aubio_sink_vorbis_t *s, fvec_t*
+    write_data, uint_t write);
+extern void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t*
+    write_data, uint_t write);
+#endif /* HAVE_VORBISENC */
+
+#ifdef HAVE_FLAC
+typedef struct _aubio_sink_flac_t aubio_sink_flac_t;
+extern aubio_sink_flac_t * new_aubio_sink_flac(const char_t *uri,
+    uint_t samplerate);
+extern void del_aubio_sink_flac (aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_open(aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_close(aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_preset_channels(aubio_sink_flac_t *s,
+    uint_t channels);
+extern uint_t aubio_sink_flac_preset_samplerate(aubio_sink_flac_t *s,
+    uint_t samplerate);
+extern uint_t aubio_sink_flac_get_channels(aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_get_samplerate(aubio_sink_flac_t *s);
+extern void aubio_sink_flac_do(aubio_sink_flac_t *s, fvec_t*
+    write_data, uint_t write);
+extern void aubio_sink_flac_do_multi(aubio_sink_flac_t *s, fmat_t*
+    write_data, uint_t write);
+#endif /* HAVE_FLAC */
+
 aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
   aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
+
+#ifdef HAVE_VORBISENC
+  // check if this uri could be for us
+  if (aubio_str_path_has_extension(uri, "ogg")) {
+    s->sink = (void *)new_aubio_sink_vorbis(uri, samplerate);
+    if (s->sink) {
+      s->s_do = (aubio_sink_do_t)(aubio_sink_vorbis_do);
+      s->s_do_multi = (aubio_sink_do_multi_t)(aubio_sink_vorbis_do_multi);
+      s->s_preset_samplerate = (aubio_sink_preset_samplerate_t)(aubio_sink_vorbis_preset_samplerate);
+      s->s_preset_channels = (aubio_sink_preset_channels_t)(aubio_sink_vorbis_preset_channels);
+      s->s_get_samplerate = (aubio_sink_get_samplerate_t)(aubio_sink_vorbis_get_samplerate);
+      s->s_get_channels = (aubio_sink_get_channels_t)(aubio_sink_vorbis_get_channels);
+      s->s_close = (aubio_sink_close_t)(aubio_sink_vorbis_close);
+      s->s_del = (del_aubio_sink_t)(del_aubio_sink_vorbis);
+      return s;
+    }
+  }
+#endif /* HAVE_VORBISENC */
+
+#ifdef HAVE_FLAC
+  // check if this uri could be for us
+  if (aubio_str_path_has_extension(uri, "flac")) {
+    s->sink = (void *)new_aubio_sink_flac(uri, samplerate);
+    if (s->sink) {
+      s->s_do = (aubio_sink_do_t)(aubio_sink_flac_do);
+      s->s_do_multi = (aubio_sink_do_multi_t)(aubio_sink_flac_do_multi);
+      s->s_preset_samplerate = (aubio_sink_preset_samplerate_t)(aubio_sink_flac_preset_samplerate);
+      s->s_preset_channels = (aubio_sink_preset_channels_t)(aubio_sink_flac_preset_channels);
+      s->s_get_samplerate = (aubio_sink_get_samplerate_t)(aubio_sink_flac_get_samplerate);
+      s->s_get_channels = (aubio_sink_get_channels_t)(aubio_sink_flac_get_channels);
+      s->s_close = (aubio_sink_close_t)(aubio_sink_flac_close);
+      s->s_del = (del_aubio_sink_t)(del_aubio_sink_flac);
+      return s;
+    }
+  }
+#endif /* HAVE_FLAC */
+
 #ifdef HAVE_SINK_APPLE_AUDIO
   s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
   if (s->sink) {
@@ -99,10 +177,12 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
 #endif /* HAVE_WAVWRITE */
 #if !defined(HAVE_WAVWRITE) && \
   !defined(HAVE_SNDFILE) && \
-  !defined(HAVE_SINK_APPLE_AUDIO)
+  !defined(HAVE_SINK_APPLE_AUDIO) && \
+  !defined(HAVE_VORBISENC) && \
+  !defined(HAVE_FLAC)
   AUBIO_ERROR("sink: failed creating '%s' at %dHz (no sink built-in)\n", uri, samplerate);
 #endif
-  AUBIO_FREE(s);
+  del_aubio_sink(s);
   return NULL;
 }
 
@@ -135,8 +215,8 @@ uint_t aubio_sink_close(aubio_sink_t *s) {
 }
 
 void del_aubio_sink(aubio_sink_t * s) {
-  if (!s) return;
-  s->s_del((void *)s->sink);
+  //AUBIO_ASSERT(s);
+  if (s && s->s_del && s->sink)
+    s->s_del((void *)s->sink);
   AUBIO_FREE(s);
-  return;
 }

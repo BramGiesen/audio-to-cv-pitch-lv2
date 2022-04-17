@@ -19,8 +19,12 @@
 // #define HAVE_AVUTIL 1
 // #define HAVE_AVRESAMPLE 1
 // #define HAVE_LIBAV 1
-#define HAVE_WAVREAD 1
-#define HAVE_WAVWRITE 1
+// #define HAVE_WAVREAD 1
+// #define HAVE_WAVWRITE 1
 #define HAVE_MEMCPY_HACKS 1
+
+#define HAVE_FFTW3
+#define HAVE_FFTW3F
+#define HAVE_COMPLEX_H
 
 #endif /* AUBIO_CONFIG_H */

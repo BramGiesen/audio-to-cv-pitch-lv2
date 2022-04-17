@@ -8,7 +8,7 @@
 # --------------------------------------------------------------
 # Project name, used for binaries
 
-NAME = audio-to-cv-pitch
+NAME = audio-to-cv-pitch-falk-changes
 
 AUBIO_MODULE = ../../aubio_module
 AUBIO = ../../aubio
@@ -16,38 +16,27 @@ AUBIO = ../../aubio
 # --------------------------------------------------------------
 # Files to build
 
-FILES_DSP  = \
-			plugin/plugin.cpp \
-			$(AUBIO_MODULE)/src/hopbuffer.cpp \
-			$(AUBIO_MODULE)/src/aubio_module.cpp \
-			$(AUBIO_MODULE)/src/aubio_pitch.cpp
+FILES_DSP = plugin/plugin.cpp
+
+EXTRA_LIBS = $(AUBIO)/libaubio.a $(shell pkg-config --libs fftw3f)
 
 # --------------------------------------------------------------
 # Do some magic
 
 include ../../dpf/Makefile.plugins.mk
 
-
 BUILD_CXX_FLAGS += \
-				   -I./plugin \
-				   -I./dsp \
-				   -I$(AUBIO_MODULE)/src \
-				   -I$(AUBIO)/src \
+	-I./plugin \
+	-I./dsp \
+	-I$(AUBIO_MODULE)/src \
+	-I$(AUBIO)/src \
 
-ifeq ($(WIN32),true)
-LINK_OPTS += -static -static-libgcc -static-libstdc++ aubio_module/aubio/aubio.a
-endif
-
-LINK_FLAGS += $(AUBIO)/libaubio.a
+# LINK_FLAGS += $(shell pkg-config --libs fftw3f)
 
 # --------------------------------------------------------------
 # Enable all possible plugin types
 
-ifeq ($(HAVE_DGL),true)
-TARGETS += lv2_sep
-else
 TARGETS += lv2_dsp
-endif
 
 all: $(TARGETS)
 

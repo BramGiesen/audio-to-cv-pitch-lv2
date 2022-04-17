@@ -2,10 +2,14 @@
 #define DISTRHO_PLUGIN_SLPLUGIN_HPP_INCLUDED
 
 #include "DistrhoPlugin.hpp"
-#include "aubio_pitch.hpp"
 
+extern "C" {
+#include <aubio.h>
+}
 
 START_NAMESPACE_DISTRHO
+
+// -----------------------------------------------------------------------
 
 class AudioToCVPitch : public Plugin
 {
@@ -13,8 +17,19 @@ public:
     enum Parameters
     {
         paramSensitivity = 0,
+        paramConfidenceThreshold,
+        paramTolerance,
         paramOctave,
+        paramHoldOutputPitch,
+        paramDetectedPitch,
+        paramPitchConfidence,
         paramCount
+    };
+
+    enum Outputs
+    {
+        outputPitch,
+        outputSignal
     };
 
     AudioToCVPitch();
@@ -31,7 +46,7 @@ protected:
 
     const char* getDescription() const override
     {
-        return "Audio to CV pitch";
+        return "This plugin converts a monophonic audio signal to CV pitch";
     }
 
     const char* getMaker() const noexcept override
@@ -62,6 +77,7 @@ protected:
     // -------------------------------------------------------------------
     // Init
 
+    void initAudioPort(bool input, uint32_t index, AudioPort& port) override;
     void initParameter(uint32_t index, Parameter& parameter) override;
 
     // -------------------------------------------------------------------
@@ -72,19 +88,31 @@ protected:
 
     // -------------------------------------------------------------------
     // Process
+
     void activate() override;
     void deactivate() override;
-    void midiNoteOn(uint8_t pitch, uint8_t velocity);
-    void midiNoteOff(uint8_t pitch);
     void run(const float** inputs, float** outputs, uint32_t frames) override;
+    void bufferSizeChanged(uint32_t newBufferSize) override;
+    void sampleRateChanged(double newSampleRate) override;
 
 private:
+    aubio_pitch_t* pitchDetector;
+    fvec_t* const detectedPitch;
 
-    AubioModule *aubio;
-    AubioPitch pitchDetector;
+    fvec_t* inputBuffer;
+    uint32_t inputBufferPos;
+    uint32_t inputBufferSize;
+
+    float lastKnownPitchLinear;
+    float lastKnownPitchInHz;
+    float lastKnownPitchConfidence;
 
     float sensitivity;
+    float threshold;
     int   octave;
+    bool  holdOutputPitch;
+
+    void recreateAubioPitchDetector(double sampleRate);
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioToCVPitch)
 };

@@ -10,28 +10,26 @@ all: libs plugins gen
 
 # --------------------------------------------------------------
 
+ifneq ($(CROSS_COMPILING),true)
+CAN_GENERATE_TTL = true
+else ifneq ($(EXE_WRAPPER),)
+CAN_GENERATE_TTL = true
+endif
+
 libs:
-	$(MAKE) -C aubio_module
+	$(MAKE) -C aubio
 
 plugins: libs
 	$(MAKE) all -C plugins/audio-to-cv-pitch
 
-ifneq ($(CROSS_COMPILING),true)
+ifeq ($(CAN_GENERATE_TTL),true)
 gen: plugins dpf/utils/lv2_ttl_generator
-	#@$(CURDIR)/dpf/utils/generate-ttl.sh
-	cp -r static-lv2-data/audio-to-cv-pitch.lv2/* bin/audio-to-cv-pitch.lv2/
-ifeq ($(MACOS),true)
-	@$(CURDIR)/dpf/utils/generate-vst-bundles.sh
-endif
+	@$(CURDIR)/dpf/utils/generate-ttl.sh
+
 dpf/utils/lv2_ttl_generator:
 	$(MAKE) -C dpf/utils/lv2-ttl-generator
 else
-gen: plugins dpf/utils/lv2_ttl_generator.exe
-	#$@(CURDIR)/dpf/utils/generate-ttl.sh
-	cp -r static-lv2-data/audio-to-cv-pitch.lv2/* bin/audio-to-cv-pitch.lv2/
-
-dpf/utils/lv2_ttl_generator.exe:
-	$(MAKE) -C dpf/utils/lv2-ttl-generator WINDOWS=true
+gen:
 endif
 
 # --------------------------------------------------------------
@@ -39,8 +37,9 @@ endif
 clean:
 	$(MAKE) clean -C dpf/utils/lv2-ttl-generator
 	$(MAKE) clean -C plugins/audio-to-cv-pitch
-	$(MAKE) clean -C aubio_module
+	$(MAKE) clean -C aubio
 	rm -rf bin build
+
 # --------------------------------------------------------------
 
-.PHONY: all clean install install-user plugins submodule
+.PHONY: all clean plugins
